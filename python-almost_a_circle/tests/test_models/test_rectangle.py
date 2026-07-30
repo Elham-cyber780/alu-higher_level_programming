@@ -230,8 +230,7 @@ class TestRectangle(unittest.TestCase):
 
     def test_save_to_file(self):
         """Test Rectangle save_to_file with Rectangle(1, 2)"""
-        r = Rectangle(1, 2)
-        Rectangle.save_to_file([r])
+        Rectangle.save_to_file([Rectangle(1, 2)])
         with open("Rectangle.json", "r") as f:
             content = json.loads(f.read())
         self.assertEqual(len(content), 1)
