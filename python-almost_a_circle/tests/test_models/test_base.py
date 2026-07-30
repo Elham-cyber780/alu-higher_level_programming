@@ -2,6 +2,8 @@
 """Unittest for Base Rectangle and Square classes"""
 import unittest
 import os
+from io import StringIO
+from unittest.mock import patch
 from models.base import Base
 from models.rectangle import Rectangle
 from models.square import Square
@@ -143,17 +145,23 @@ class TestRectangle(unittest.TestCase):
     def test_display_no_x_y(self):
         """Test display() without x and y"""
         r = Rectangle(2, 2)
-        self.assertIsNone(r.display())
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            r.display()
+            self.assertEqual(fake_out.getvalue(), "##\n##\n")
 
     def test_display_no_y(self):
         """Test display() without y"""
         r = Rectangle(2, 2, 1)
-        self.assertIsNone(r.display())
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            r.display()
+            self.assertEqual(fake_out.getvalue(), " ##\n ##\n")
 
     def test_display(self):
         """Test display()"""
         r = Rectangle(2, 2, 1, 1)
-        self.assertIsNone(r.display())
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            r.display()
+            self.assertEqual(fake_out.getvalue(), "\n ##\n ##\n")
 
     def test_to_dictionary(self):
         """Test to_dictionary() in Rectangle"""
