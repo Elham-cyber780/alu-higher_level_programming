@@ -2,6 +2,7 @@
 """Unittest for Square class"""
 import unittest
 import os
+import json
 from models.square import Square
 
 
@@ -152,31 +153,43 @@ class TestSquare(unittest.TestCase):
         """Test Square save_to_file with None"""
         Square.save_to_file(None)
         with open("Square.json", "r") as f:
-            self.assertEqual(f.read(), "[]")
+            content = f.read()
+        self.assertEqual(content, "[]")
+        self.assertEqual(json.loads(content), [])
 
     def test_sq_save_to_file_empty(self):
         """Test Square save_to_file with empty list"""
         Square.save_to_file([])
         with open("Square.json", "r") as f:
-            self.assertEqual(f.read(), "[]")
+            content = f.read()
+        self.assertEqual(content, "[]")
+        self.assertEqual(json.loads(content), [])
 
     def test_sq_save_to_file(self):
-        """Test Square save_to_file with list"""
-        Square.save_to_file([Square(1)])
+        """Test Square save_to_file with Square(1)"""
+        s = Square(1)
+        Square.save_to_file([s])
         with open("Square.json", "r") as f:
-            self.assertIn("size", f.read())
+            content = json.loads(f.read())
+        self.assertEqual(len(content), 1)
+        self.assertEqual(content[0]['size'], 1)
 
     def test_sq_load_from_file_no_file(self):
         """Test Square load_from_file when file doesnt exist"""
         if os.path.exists("Square.json"):
             os.remove("Square.json")
-        self.assertEqual(Square.load_from_file(), [])
+        result = Square.load_from_file()
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 0)
 
     def test_sq_load_from_file(self):
         """Test Square load_from_file when file exists"""
-        Square.save_to_file([Square(1)])
+        s = Square(1)
+        Square.save_to_file([s])
         squares = Square.load_from_file()
+        self.assertEqual(len(squares), 1)
         self.assertIsInstance(squares[0], Square)
+        self.assertEqual(squares[0].size, 1)
 
 
 if __name__ == '__main__':

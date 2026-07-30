@@ -2,6 +2,7 @@
 """Unittest for Rectangle class"""
 import unittest
 import os
+import json
 from io import StringIO
 from unittest.mock import patch
 from models.rectangle import Rectangle
@@ -14,6 +15,7 @@ class TestRectangle(unittest.TestCase):
         """Test Rectangle(1, 2)"""
         r = Rectangle(1, 2)
         self.assertEqual(r.width, 1)
+        self.assertEqual(r.height, 2)
 
     def test_rect_1_2_3(self):
         """Test Rectangle(1, 2, 3)"""
@@ -214,31 +216,45 @@ class TestRectangle(unittest.TestCase):
         """Test Rectangle save_to_file with None"""
         Rectangle.save_to_file(None)
         with open("Rectangle.json", "r") as f:
-            self.assertEqual(f.read(), "[]")
+            content = f.read()
+        self.assertEqual(content, "[]")
+        self.assertEqual(json.loads(content), [])
 
     def test_save_to_file_empty(self):
         """Test Rectangle save_to_file with empty list"""
         Rectangle.save_to_file([])
         with open("Rectangle.json", "r") as f:
-            self.assertEqual(f.read(), "[]")
+            content = f.read()
+        self.assertEqual(content, "[]")
+        self.assertEqual(json.loads(content), [])
 
     def test_save_to_file(self):
-        """Test Rectangle save_to_file with list"""
-        Rectangle.save_to_file([Rectangle(1, 2)])
+        """Test Rectangle save_to_file with Rectangle(1, 2)"""
+        r = Rectangle(1, 2)
+        Rectangle.save_to_file([r])
         with open("Rectangle.json", "r") as f:
-            self.assertIn("width", f.read())
+            content = json.loads(f.read())
+        self.assertEqual(len(content), 1)
+        self.assertEqual(content[0]['width'], 1)
+        self.assertEqual(content[0]['height'], 2)
 
     def test_load_from_file_no_file(self):
         """Test Rectangle load_from_file when file doesnt exist"""
         if os.path.exists("Rectangle.json"):
             os.remove("Rectangle.json")
-        self.assertEqual(Rectangle.load_from_file(), [])
+        result = Rectangle.load_from_file()
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 0)
 
     def test_load_from_file(self):
         """Test Rectangle load_from_file when file exists"""
-        Rectangle.save_to_file([Rectangle(1, 2)])
+        r = Rectangle(1, 2)
+        Rectangle.save_to_file([r])
         rects = Rectangle.load_from_file()
+        self.assertEqual(len(rects), 1)
         self.assertIsInstance(rects[0], Rectangle)
+        self.assertEqual(rects[0].width, 1)
+        self.assertEqual(rects[0].height, 2)
 
 
 if __name__ == '__main__':
