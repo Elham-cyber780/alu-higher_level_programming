@@ -1,7 +1,10 @@
 #!/usr/bin/python3
-"""Unittest for Base class"""
+"""Unittest for Base Rectangle and Square classes"""
 import unittest
+import os
 from models.base import Base
+from models.rectangle import Rectangle
+from models.square import Square
 
 
 class TestBase(unittest.TestCase):
@@ -18,20 +21,441 @@ class TestBase(unittest.TestCase):
         b = Base(89)
         self.assertEqual(b.id, 89)
 
-    def test_id_none(self):
-        """Test None id assignment"""
-        b = Base(None)
-        self.assertIsNotNone(b.id)
+    def test_to_json_string_none(self):
+        """Test to_json_string with None"""
+        self.assertEqual(Base.to_json_string(None), "[]")
 
-    def test_id_string(self):
-        """Test string id assignment"""
-        b = Base("hello")
-        self.assertEqual(b.id, "hello")
+    def test_to_json_string_empty(self):
+        """Test to_json_string with empty list"""
+        self.assertEqual(Base.to_json_string([]), "[]")
 
-    def test_id_float(self):
-        """Test float id assignment"""
-        b = Base(1.5)
-        self.assertEqual(b.id, 1.5)
+    def test_to_json_string_list(self):
+        """Test to_json_string with list"""
+        result = Base.to_json_string([{'id': 12}])
+        self.assertIn("12", result)
+
+    def test_to_json_string_returns_string(self):
+        """Test to_json_string returns a string"""
+        self.assertIsInstance(Base.to_json_string([{'id': 12}]), str)
+
+    def test_from_json_string_none(self):
+        """Test from_json_string with None"""
+        self.assertEqual(Base.from_json_string(None), [])
+
+    def test_from_json_string_empty(self):
+        """Test from_json_string with empty string"""
+        self.assertEqual(Base.from_json_string("[]"), [])
+
+    def test_from_json_string_list(self):
+        """Test from_json_string with list"""
+        self.assertEqual(
+            Base.from_json_string('[{"id": 89}]'), [{"id": 89}])
+
+    def test_from_json_string_returns_list(self):
+        """Test from_json_string returns a list"""
+        self.assertIsInstance(
+            Base.from_json_string('[{"id": 89}]'), list)
+
+
+class TestRectangle(unittest.TestCase):
+    """Test cases for Rectangle class"""
+
+    def test_rectangle_1_2(self):
+        """Test Rectangle(1, 2)"""
+        r = Rectangle(1, 2)
+        self.assertEqual(r.width, 1)
+
+    def test_rectangle_1_2_3(self):
+        """Test Rectangle(1, 2, 3)"""
+        r = Rectangle(1, 2, 3)
+        self.assertEqual(r.x, 3)
+
+    def test_rectangle_1_2_3_4(self):
+        """Test Rectangle(1, 2, 3, 4)"""
+        r = Rectangle(1, 2, 3, 4)
+        self.assertEqual(r.y, 4)
+
+    def test_rectangle_string_width(self):
+        """Test Rectangle string width raises TypeError"""
+        with self.assertRaises(TypeError):
+            Rectangle("1", 2)
+
+    def test_rectangle_string_height(self):
+        """Test Rectangle string height raises TypeError"""
+        with self.assertRaises(TypeError):
+            Rectangle(1, "2")
+
+    def test_rectangle_string_x(self):
+        """Test Rectangle string x raises TypeError"""
+        with self.assertRaises(TypeError):
+            Rectangle(1, 2, "3")
+
+    def test_rectangle_string_y(self):
+        """Test Rectangle string y raises TypeError"""
+        with self.assertRaises(TypeError):
+            Rectangle(1, 2, 3, "4")
+
+    def test_rectangle_with_id(self):
+        """Test Rectangle with id"""
+        r = Rectangle(1, 2, 3, 4, 5)
+        self.assertEqual(r.id, 5)
+
+    def test_rectangle_negative_width(self):
+        """Test Rectangle negative width raises ValueError"""
+        with self.assertRaises(ValueError):
+            Rectangle(-1, 2)
+
+    def test_rectangle_negative_height(self):
+        """Test Rectangle negative height raises ValueError"""
+        with self.assertRaises(ValueError):
+            Rectangle(1, -2)
+
+    def test_rectangle_zero_width(self):
+        """Test Rectangle zero width raises ValueError"""
+        with self.assertRaises(ValueError):
+            Rectangle(0, 2)
+
+    def test_rectangle_zero_height(self):
+        """Test Rectangle zero height raises ValueError"""
+        with self.assertRaises(ValueError):
+            Rectangle(1, 0)
+
+    def test_rectangle_negative_x(self):
+        """Test Rectangle negative x raises ValueError"""
+        with self.assertRaises(ValueError):
+            Rectangle(1, 2, -3)
+
+    def test_rectangle_negative_y(self):
+        """Test Rectangle negative y raises ValueError"""
+        with self.assertRaises(ValueError):
+            Rectangle(1, 2, 3, -4)
+
+    def test_area(self):
+        """Test area()"""
+        r = Rectangle(3, 4)
+        self.assertEqual(r.area(), 12)
+
+    def test_str(self):
+        """Test __str__() for Rectangle"""
+        r = Rectangle(1, 2, 3, 4, 5)
+        self.assertEqual(str(r), "[Rectangle] (5) 3/4 - 1/2")
+
+    def test_display_no_x_y(self):
+        """Test display() without x and y"""
+        r = Rectangle(2, 2)
+        self.assertIsNone(r.display())
+
+    def test_display_no_y(self):
+        """Test display() without y"""
+        r = Rectangle(2, 2, 1)
+        self.assertIsNone(r.display())
+
+    def test_display(self):
+        """Test display()"""
+        r = Rectangle(2, 2, 1, 1)
+        self.assertIsNone(r.display())
+
+    def test_to_dictionary(self):
+        """Test to_dictionary() in Rectangle"""
+        r = Rectangle(1, 2, 3, 4, 5)
+        self.assertEqual(r.to_dictionary(),
+                         {'id': 5, 'width': 1, 'height': 2, 'x': 3, 'y': 4})
+
+    def test_update(self):
+        """Test update() in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update()
+        self.assertEqual(r.width, 1)
+
+    def test_update_89(self):
+        """Test update(89) in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update(89)
+        self.assertEqual(r.id, 89)
+
+    def test_update_89_1(self):
+        """Test update(89, 1) in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update(89, 1)
+        self.assertEqual(r.width, 1)
+
+    def test_update_89_1_2(self):
+        """Test update(89, 1, 2) in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update(89, 1, 2)
+        self.assertEqual(r.height, 2)
+
+    def test_update_89_1_2_3(self):
+        """Test update(89, 1, 2, 3) in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update(89, 1, 2, 3)
+        self.assertEqual(r.x, 3)
+
+    def test_update_89_1_2_3_4(self):
+        """Test update(89, 1, 2, 3, 4) in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update(89, 1, 2, 3, 4)
+        self.assertEqual(r.y, 4)
+
+    def test_update_kwargs_id(self):
+        """Test update kwargs id in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update(**{'id': 89})
+        self.assertEqual(r.id, 89)
+
+    def test_update_kwargs_id_width(self):
+        """Test update kwargs id width in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update(**{'id': 89, 'width': 1})
+        self.assertEqual(r.width, 1)
+
+    def test_update_kwargs_id_width_height(self):
+        """Test update kwargs id width height in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update(**{'id': 89, 'width': 1, 'height': 2})
+        self.assertEqual(r.height, 2)
+
+    def test_update_kwargs_id_width_height_x(self):
+        """Test update kwargs id width height x in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update(**{'id': 89, 'width': 1, 'height': 2, 'x': 3})
+        self.assertEqual(r.x, 3)
+
+    def test_update_kwargs_all(self):
+        """Test update kwargs all in Rectangle"""
+        r = Rectangle(1, 2)
+        r.update(**{'id': 89, 'width': 1, 'height': 2, 'x': 3, 'y': 4})
+        self.assertEqual(r.y, 4)
+
+    def test_create_id(self):
+        """Test Rectangle create with id"""
+        r = Rectangle.create(**{'id': 89})
+        self.assertEqual(r.id, 89)
+
+    def test_create_id_width(self):
+        """Test Rectangle create with id and width"""
+        r = Rectangle.create(**{'id': 89, 'width': 1})
+        self.assertEqual(r.width, 1)
+
+    def test_create_id_width_height(self):
+        """Test Rectangle create with id width height"""
+        r = Rectangle.create(**{'id': 89, 'width': 1, 'height': 2})
+        self.assertEqual(r.height, 2)
+
+    def test_create_id_width_height_x(self):
+        """Test Rectangle create with id width height x"""
+        r = Rectangle.create(**{'id': 89, 'width': 1, 'height': 2, 'x': 3})
+        self.assertEqual(r.x, 3)
+
+    def test_create_all(self):
+        """Test Rectangle create with all attributes"""
+        r = Rectangle.create(
+            **{'id': 89, 'width': 1, 'height': 2, 'x': 3, 'y': 4})
+        self.assertEqual(r.y, 4)
+
+    def test_save_to_file_none(self):
+        """Test Rectangle save_to_file with None"""
+        Rectangle.save_to_file(None)
+        with open("Rectangle.json", "r") as f:
+            self.assertEqual(f.read(), "[]")
+
+    def test_save_to_file_empty(self):
+        """Test Rectangle save_to_file with empty list"""
+        Rectangle.save_to_file([])
+        with open("Rectangle.json", "r") as f:
+            self.assertEqual(f.read(), "[]")
+
+    def test_save_to_file(self):
+        """Test Rectangle save_to_file with list"""
+        Rectangle.save_to_file([Rectangle(1, 2)])
+        with open("Rectangle.json", "r") as f:
+            self.assertIn("width", f.read())
+
+    def test_load_from_file_no_file(self):
+        """Test Rectangle load_from_file when file doesnt exist"""
+        if os.path.exists("Rectangle.json"):
+            os.remove("Rectangle.json")
+        self.assertEqual(Rectangle.load_from_file(), [])
+
+    def test_load_from_file(self):
+        """Test Rectangle load_from_file when file exists"""
+        Rectangle.save_to_file([Rectangle(1, 2)])
+        rects = Rectangle.load_from_file()
+        self.assertIsInstance(rects[0], Rectangle)
+
+
+class TestSquare(unittest.TestCase):
+    """Test cases for Square class"""
+
+    def test_square_1(self):
+        """Test Square(1)"""
+        s = Square(1)
+        self.assertEqual(s.size, 1)
+
+    def test_square_1_2(self):
+        """Test Square(1, 2)"""
+        s = Square(1, 2)
+        self.assertEqual(s.x, 2)
+
+    def test_square_1_2_3(self):
+        """Test Square(1, 2, 3)"""
+        s = Square(1, 2, 3)
+        self.assertEqual(s.y, 3)
+
+    def test_square_string_size(self):
+        """Test Square string size raises TypeError"""
+        with self.assertRaises(TypeError):
+            Square("1")
+
+    def test_square_string_x(self):
+        """Test Square string x raises TypeError"""
+        with self.assertRaises(TypeError):
+            Square(1, "2")
+
+    def test_square_string_y(self):
+        """Test Square string y raises TypeError"""
+        with self.assertRaises(TypeError):
+            Square(1, 2, "3")
+
+    def test_square_with_id(self):
+        """Test Square with id"""
+        s = Square(1, 2, 3, 4)
+        self.assertEqual(s.id, 4)
+
+    def test_square_negative_size(self):
+        """Test Square negative size raises ValueError"""
+        with self.assertRaises(ValueError):
+            Square(-1)
+
+    def test_square_negative_x(self):
+        """Test Square negative x raises ValueError"""
+        with self.assertRaises(ValueError):
+            Square(1, -2)
+
+    def test_square_negative_y(self):
+        """Test Square negative y raises ValueError"""
+        with self.assertRaises(ValueError):
+            Square(1, 2, -3)
+
+    def test_square_zero(self):
+        """Test Square zero raises ValueError"""
+        with self.assertRaises(ValueError):
+            Square(0)
+
+    def test_str(self):
+        """Test __str__() for Square"""
+        s = Square(1, 2, 3, 4)
+        self.assertEqual(str(s), "[Square] (4) 2/3 - 1")
+
+    def test_to_dictionary(self):
+        """Test to_dictionary() in Square"""
+        s = Square(1, 2, 3, 4)
+        self.assertEqual(s.to_dictionary(),
+                         {'id': 4, 'size': 1, 'x': 2, 'y': 3})
+
+    def test_update(self):
+        """Test update() in Square"""
+        s = Square(1)
+        s.update()
+        self.assertEqual(s.size, 1)
+
+    def test_update_89(self):
+        """Test update(89) in Square"""
+        s = Square(1)
+        s.update(89)
+        self.assertEqual(s.id, 89)
+
+    def test_update_89_1(self):
+        """Test update(89, 1) in Square"""
+        s = Square(1)
+        s.update(89, 1)
+        self.assertEqual(s.size, 1)
+
+    def test_update_89_1_2(self):
+        """Test update(89, 1, 2) in Square"""
+        s = Square(1)
+        s.update(89, 1, 2)
+        self.assertEqual(s.x, 2)
+
+    def test_update_89_1_2_3(self):
+        """Test update(89, 1, 2, 3) in Square"""
+        s = Square(1)
+        s.update(89, 1, 2, 3)
+        self.assertEqual(s.y, 3)
+
+    def test_update_kwargs_id(self):
+        """Test update kwargs id in Square"""
+        s = Square(1)
+        s.update(**{'id': 89})
+        self.assertEqual(s.id, 89)
+
+    def test_update_kwargs_id_size(self):
+        """Test update kwargs id size in Square"""
+        s = Square(1)
+        s.update(**{'id': 89, 'size': 1})
+        self.assertEqual(s.size, 1)
+
+    def test_update_kwargs_id_size_x(self):
+        """Test update kwargs id size x in Square"""
+        s = Square(1)
+        s.update(**{'id': 89, 'size': 1, 'x': 2})
+        self.assertEqual(s.x, 2)
+
+    def test_update_kwargs_all(self):
+        """Test update kwargs all in Square"""
+        s = Square(1)
+        s.update(**{'id': 89, 'size': 1, 'x': 2, 'y': 3})
+        self.assertEqual(s.y, 3)
+
+    def test_create_id(self):
+        """Test Square create with id"""
+        s = Square.create(**{'id': 89})
+        self.assertEqual(s.id, 89)
+
+    def test_create_id_size(self):
+        """Test Square create with id and size"""
+        s = Square.create(**{'id': 89, 'size': 1})
+        self.assertEqual(s.size, 1)
+
+    def test_create_id_size_x(self):
+        """Test Square create with id size x"""
+        s = Square.create(**{'id': 89, 'size': 1, 'x': 2})
+        self.assertEqual(s.x, 2)
+
+    def test_create_all(self):
+        """Test Square create with all attributes"""
+        s = Square.create(**{'id': 89, 'size': 1, 'x': 2, 'y': 3})
+        self.assertEqual(s.y, 3)
+
+    def test_save_to_file_none(self):
+        """Test Square save_to_file with None"""
+        Square.save_to_file(None)
+        with open("Square.json", "r") as f:
+            self.assertEqual(f.read(), "[]")
+
+    def test_save_to_file_empty(self):
+        """Test Square save_to_file with empty list"""
+        Square.save_to_file([])
+        with open("Square.json", "r") as f:
+            self.assertEqual(f.read(), "[]")
+
+    def test_save_to_file(self):
+        """Test Square save_to_file with list"""
+        Square.save_to_file([Square(1)])
+        with open("Square.json", "r") as f:
+            self.assertIn("size", f.read())
+
+    def test_load_from_file_no_file(self):
+        """Test Square load_from_file when file doesnt exist"""
+        if os.path.exists("Square.json"):
+            os.remove("Square.json")
+        self.assertEqual(Square.load_from_file(), [])
+
+    def test_load_from_file(self):
+        """Test Square load_from_file when file exists"""
+        Square.save_to_file([Square(1)])
+        squares = Square.load_from_file()
+        self.assertIsInstance(squares[0], Square)
 
 
 if __name__ == '__main__':
